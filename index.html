@@ -559,20 +559,27 @@ window.onload = function () {
 
 /* ================= CSV PARSE ================= */
 function parseCSV(text, company) {
-  return text.split('\n').slice(1).map(row => {
+  const rows = text.split('\n').slice(1);
+
+  return rows.map(row => {
     if (!row.trim()) return null;
 
     const cols = row.split(',');
-    if (!cols[1]) return null;
+
+    const difficulty = (cols[0] || '').trim().toUpperCase();
+    const title = (cols[1] || '').trim();
+
+    // ✅ find first valid URL in row
+    const link = cols.find(col => col.includes('leetcode.com')) || '';
 
     return {
-      title: cols[1].trim(),
-      difficulty: (cols[0] || '').trim().toUpperCase(),
-      link: (cols[3] || '').trim(),
-      company: company,
-      id: cols[1].trim() + '_' + company
+      title,
+      difficulty,
+      link,
+      company,
+      id: title + '_' + company
     };
-  }).filter(Boolean);
+  }).filter(item => item && item.title);
 }
 
 /* ================= UPLOAD ================= */
