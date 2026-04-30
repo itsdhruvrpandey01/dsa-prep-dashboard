@@ -23,7 +23,10 @@
 
     <input id="search" placeholder="Search questions..."
       class="p-2 border rounded w-60"/>
-
+<button onclick="clearData()" 
+  class="mb-4 bg-red-500 text-white px-4 py-2 rounded">
+  Reset Sheet
+</button>
     <select id="companyFilter" class="p-2 border rounded">
       <option value="">All Companies</option>
     </select>
@@ -67,12 +70,26 @@
 let data = [];
 let filteredData = [];
 
+// 🔥 unified progress store
+let progress = JSON.parse(localStorage.getItem("progress")) || {};
+
 const tableBody = document.getElementById("tableBody");
 const searchInput = document.getElementById("search");
 const companyFilter = document.getElementById("companyFilter");
 const difficultyFilter = document.getElementById("difficultyFilter");
 
-// CSV Parser
+// ================= LOAD FROM STORAGE =================
+window.onload = function () {
+  const savedData = localStorage.getItem("dsaData");
+
+  if (savedData) {
+    data = JSON.parse(savedData);
+    updateCompanyFilter();
+    applyFilters();
+  }
+};
+
+// ================= CSV PARSER =================
 function parseCSV(text, companyName) {
   const rows = text.split("\n").slice(1);
 
@@ -80,25 +97,33 @@ function parseCSV(text, companyName) {
     const cols = row.split(",");
     return {
       title: cols[1],
-      difficulty: cols[0],
+      difficulty: cols[0]?.toUpperCase(),
       link: cols[3],
       company: companyName,
-      id: cols[1] + companyName
+      id: cols[1] + "_" + companyName
     };
   }).filter(r => r.title);
 }
 
-// Upload handler
+// ================= UPLOAD =================
 document.getElementById("csvFiles").addEventListener("change", function(e) {
   const files = e.target.files;
-  data = [];
 
   Array.from(files).forEach(file => {
     const reader = new FileReader();
 
     reader.onload = function(evt) {
       const parsed = parseCSV(evt.target.result, file.name.replace(".csv", ""));
-      data.push(...parsed);
+
+      // 🔥 prevent duplicates
+      const existingIds = new Set(data.map(d => d.id));
+      const newData = parsed.filter(item => !existingIds.has(item.id));
+
+      data.push(...newData);
+
+      // 🔥 SAVE DATA
+      localStorage.setItem("dsaData", JSON.stringify(data));
+
       updateCompanyFilter();
       applyFilters();
     };
@@ -107,7 +132,7 @@ document.getElementById("csvFiles").addEventListener("change", function(e) {
   });
 });
 
-// Filters
+// ================= FILTERS =================
 function applyFilters() {
   const search = searchInput.value.toLowerCase();
   const company = companyFilter.value;
@@ -129,12 +154,12 @@ searchInput.addEventListener("input", applyFilters);
 companyFilter.addEventListener("change", applyFilters);
 difficultyFilter.addEventListener("change", applyFilters);
 
-// Render table
+// ================= RENDER =================
 function renderTable() {
   tableBody.innerHTML = "";
 
   filteredData.forEach(item => {
-    const solved = localStorage.getItem(item.id) === "true";
+    const solved = progress[item.id] === true;
 
     const row = `
       <tr class="border-b">
@@ -162,18 +187,22 @@ function renderTable() {
   });
 }
 
-// Toggle solved
+// ================= TOGGLE =================
 function toggleSolved(id) {
-  const current = localStorage.getItem(id) === "true";
-  localStorage.setItem(id, !current);
+  progress[id] = !progress[id];
+
+  // 🔥 SAVE PROGRESS
+  localStorage.setItem("progress", JSON.stringify(progress));
+
   updateProgress();
 }
 
-// Progress
+// ================= PROGRESS =================
 function updateProgress() {
   const total = filteredData.length;
+
   const solved = filteredData.filter(item =>
-    localStorage.getItem(item.id) === "true"
+    progress[item.id] === true
   ).length;
 
   const percent = total ? (solved / total) * 100 : 0;
@@ -184,7 +213,7 @@ function updateProgress() {
   document.getElementById("progressBar").style.width = percent + "%";
 }
 
-// Company filter
+// ================= COMPANY FILTER =================
 function updateCompanyFilter() {
   const companies = [...new Set(data.map(d => d.company))];
 
@@ -194,7 +223,15 @@ function updateCompanyFilter() {
     companyFilter.innerHTML += `<option value="${c}">${c}</option>`;
   });
 }
-</script>
 
+// ================= RESET =================
+function clearData() {
+  if (confirm("This will delete all data & progress. Continue?")) {
+    localStorage.removeItem("dsaData");
+    localStorage.removeItem("progress");
+    location.reload();
+  }
+}
+</script>
 </body>
 </html>
