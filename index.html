@@ -546,21 +546,25 @@ let activeDiff = '';
 let currentPage = 1;
 const PAGE = 25;
 
+/* ================= INIT ================= */
 window.onload = function () {
   const saved = localStorage.getItem('dsa_data');
   if (saved) {
     data = JSON.parse(saved);
     updateCompanyFilter();
-    applyFilters();
   }
+  applyFilters();
   renderStreak();
 };
 
-/* ── CSV PARSE ── */
+/* ================= CSV PARSE ================= */
 function parseCSV(text, company) {
   return text.split('\n').slice(1).map(row => {
+    if (!row.trim()) return null;
+
     const cols = row.split(',');
-    if (!cols[1] || !cols[1].trim()) return null;
+    if (!cols[1]) return null;
+
     return {
       title: cols[1].trim(),
       difficulty: (cols[0] || '').trim().toUpperCase(),
@@ -571,186 +575,270 @@ function parseCSV(text, company) {
   }).filter(Boolean);
 }
 
-/* ── UPLOAD ── */
+/* ================= UPLOAD ================= */
 document.getElementById('csvFiles').addEventListener('change', function (e) {
   Array.from(e.target.files).forEach(file => {
     const reader = new FileReader();
+
     reader.onload = function (evt) {
       const parsed = parseCSV(evt.target.result, file.name.replace('.csv', ''));
+
+      // 🚫 Prevent duplicates
       const existingIds = new Set(data.map(d => d.id));
       const newItems = parsed.filter(i => !existingIds.has(i.id));
+
       data.push(...newItems);
+
       localStorage.setItem('dsa_data', JSON.stringify(data));
+
       updateCompanyFilter();
       applyFilters();
-      document.getElementById('headerSub').textContent = data.length + ' problems across ' + [...new Set(data.map(d => d.company))].length + ' companies';
     };
+
     reader.readAsText(file);
   });
+
   e.target.value = '';
 });
 
-/* ── DIFF FILTER ── */
+/* ================= FILTER ================= */
 function setDiff(d) {
   activeDiff = d;
   currentPage = 1;
+
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  const map = { '': 'all', 'EASY': 'easy', 'MEDIUM': 'medium', 'HARD': 'hard', 'solved': 'solved', 'unsolved': 'unsolved' };
+
+  const map = {
+    '': 'all',
+    'EASY': 'easy',
+    'MEDIUM': 'medium',
+    'HARD': 'hard',
+    'solved': 'solved',
+    'unsolved': 'unsolved'
+  };
+
   const el = document.getElementById('chip-' + (map[d] || 'all'));
   if (el) el.classList.add('active');
+
   applyFilters();
 }
 
-/* ── FILTERS ── */
 function applyFilters() {
   const search = document.getElementById('search').value.toLowerCase();
   const company = document.getElementById('companyFilter').value;
+
   filteredData = data.filter(item => {
     if (search && !item.title.toLowerCase().includes(search)) return false;
     if (company && item.company !== company) return false;
+
     if (activeDiff === 'solved') return !!progress[item.id];
     if (activeDiff === 'unsolved') return !progress[item.id];
-    if (activeDiff && !['solved','unsolved'].includes(activeDiff) && item.difficulty !== activeDiff) return false;
+
+    if (activeDiff && item.difficulty !== activeDiff) return false;
+
     return true;
   });
+
   currentPage = 1;
   renderTable();
   updateStats();
 }
 
-/* ── RENDER ── */
+/* ================= TABLE ================= */
 function renderTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
+
   if (filteredData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><span class="empty-icon">🗂</span><h3>${data.length === 0 ? 'No problems loaded' : 'No matches'}</h3><p>${data.length === 0 ? 'Upload a CSV to get started' : 'Try adjusting your filters'}</p></div></td></tr>`;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          <div class="empty">
+            <span class="empty-icon">🗂</span>
+            <h3>${data.length === 0 ? 'No problems loaded' : 'No matches'}</h3>
+            <p>${data.length === 0 ? 'Upload a CSV to start' : 'Try different filters'}</p>
+          </div>
+        </td>
+      </tr>`;
     document.getElementById('pageInfo').textContent = '—';
     document.getElementById('pageBtns').innerHTML = '';
     return;
   }
+
   const start = (currentPage - 1) * PAGE;
   const slice = filteredData.slice(start, start + PAGE);
+
   slice.forEach(item => {
     const solved = !!progress[item.id];
-    const diff = item.difficulty;
-    const badgeCls = diff === 'EASY' ? 'b-easy' : diff === 'MEDIUM' ? 'b-medium' : 'b-hard';
-    const diffLabel = diff ? diff[0] + diff.slice(1).toLowerCase() : '—';
+
+    const badgeCls =
+      item.difficulty === 'EASY' ? 'b-easy' :
+      item.difficulty === 'MEDIUM' ? 'b-medium' : 'b-hard';
+
     const tr = document.createElement('tr');
-    if (solved) tr.className = 'solved';
-    const safeId = item.id.replace(/'/g, "\\'");
+    if (solved) tr.classList.add('solved');
+
     tr.innerHTML = `
-      <td style="text-align:center"><input type="checkbox" ${solved ? 'checked' : ''} onchange="toggleSolved('${safeId}')"></td>
+      <td style="text-align:center">
+        <input type="checkbox" ${solved ? 'checked' : ''}
+          onchange="toggleSolved('${item.id}')">
+      </td>
       <td title="${item.title}">${item.title}</td>
-      <td style="color:var(--muted);font-size:12px" title="${item.company}">${item.company}</td>
-      <td><span class="badge ${badgeCls}">${diffLabel}</span></td>
-      <td>${item.link ? `<a class="solve-link" href="${item.link}" target="_blank" rel="noopener">open →</a>` : '<span style="color:var(--dim)">—</span>'}</td>
+      <td style="color:var(--muted);font-size:12px">${item.company}</td>
+      <td><span class="badge ${badgeCls}">${item.difficulty}</span></td>
+      <td>
+        ${item.link 
+          ? `<a class="solve-link" href="${item.link}" target="_blank">open →</a>`
+          : '<span style="color:var(--dim)">—</span>'}
+      </td>
     `;
+
     tbody.appendChild(tr);
   });
+
   renderPagination();
 }
 
+/* ================= PAGINATION ================= */
 function renderPagination() {
   const total = filteredData.length;
   const totalPages = Math.ceil(total / PAGE);
+
   const start = (currentPage - 1) * PAGE;
-  document.getElementById('pageInfo').textContent = `${start + 1}–${Math.min(start + PAGE, total)} of ${total}`;
+  document.getElementById('pageInfo').textContent =
+    `${start + 1}–${Math.min(start + PAGE, total)} of ${total}`;
+
   const container = document.getElementById('pageBtns');
   container.innerHTML = '';
+
   const prev = document.createElement('button');
-  prev.className = 'pbtn'; prev.textContent = '←'; prev.disabled = currentPage === 1;
+  prev.className = 'pbtn';
+  prev.textContent = '←';
+  prev.disabled = currentPage === 1;
   prev.onclick = () => { currentPage--; renderTable(); };
   container.appendChild(prev);
-  let s = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-  let e = Math.min(totalPages, s + 4);
-  for (let i = s; i <= e; i++) {
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (i > 5 && i !== totalPages) continue;
+
     const b = document.createElement('button');
     b.className = 'pbtn' + (i === currentPage ? ' cur' : '');
     b.textContent = i;
-    const pg = i;
-    b.onclick = () => { currentPage = pg; renderTable(); };
+    b.onclick = () => { currentPage = i; renderTable(); };
     container.appendChild(b);
   }
+
   const next = document.createElement('button');
-  next.className = 'pbtn'; next.textContent = '→'; next.disabled = currentPage === totalPages;
+  next.className = 'pbtn';
+  next.textContent = '→';
+  next.disabled = currentPage === totalPages;
   next.onclick = () => { currentPage++; renderTable(); };
   container.appendChild(next);
 }
 
-/* ── TOGGLE ── */
+/* ================= TOGGLE ================= */
 function toggleSolved(id) {
   progress[id] = !progress[id];
+
   localStorage.setItem('dsa_progress', JSON.stringify(progress));
+
   updateStats();
   renderTable();
 }
 
-/* ── STATS ── */
+/* ================= STATS ================= */
 function updateStats() {
   const total = data.length;
   const solved = data.filter(i => progress[i.id]).length;
   const pct = total ? Math.round((solved / total) * 100) : 0;
+
   const easy = data.filter(i => i.difficulty === 'EASY');
   const med = data.filter(i => i.difficulty === 'MEDIUM');
   const hard = data.filter(i => i.difficulty === 'HARD');
+
   const es = easy.filter(i => progress[i.id]).length;
   const ms = med.filter(i => progress[i.id]).length;
   const hs = hard.filter(i => progress[i.id]).length;
+
+  // top stats
   document.getElementById('sTotal').textContent = total;
   document.getElementById('sSolved').textContent = solved;
   document.getElementById('sSolvedPct').textContent = pct + '% done';
+
   document.getElementById('sEasy').textContent = easy.length;
   document.getElementById('sEasySub').textContent = es + ' solved';
+
   document.getElementById('sMed').textContent = med.length;
   document.getElementById('sMedSub').textContent = ms + ' solved';
+
   document.getElementById('sHard').textContent = hard.length;
   document.getElementById('sHardSub').textContent = hs + ' solved';
-  document.getElementById('progLabel').textContent = solved + ' of ' + total + ' problems solved';
+
+  // progress
+  document.getElementById('progLabel').textContent =
+    solved + ' of ' + total + ' problems solved';
+
   document.getElementById('progPct').textContent = pct + '%';
   document.getElementById('progBar').style.width = pct + '%';
-  const epct = easy.length ? Math.round((es / easy.length) * 100) : 0;
-  const mpct = med.length ? Math.round((ms / med.length) * 100) : 0;
-  const hpct = hard.length ? Math.round((hs / hard.length) * 100) : 0;
-  document.getElementById('dbEasy').style.width = epct + '%';
+
+  // difficulty bars
+  document.getElementById('dbEasy').style.width =
+    (easy.length ? (es / easy.length) * 100 : 0) + '%';
   document.getElementById('dbEasyLbl').textContent = es + '/' + easy.length;
-  document.getElementById('dbMed').style.width = mpct + '%';
+
+  document.getElementById('dbMed').style.width =
+    (med.length ? (ms / med.length) * 100 : 0) + '%';
   document.getElementById('dbMedLbl').textContent = ms + '/' + med.length;
-  document.getElementById('dbHard').style.width = hpct + '%';
+
+  document.getElementById('dbHard').style.width =
+    (hard.length ? (hs / hard.length) * 100 : 0) + '%';
   document.getElementById('dbHardLbl').textContent = hs + '/' + hard.length;
-  if (total > 0) document.getElementById('headerSub').textContent = total + ' problems across ' + [...new Set(data.map(d => d.company))].length + ' companies';
+
+  // header
+  if (total > 0) {
+    document.getElementById('headerSub').textContent =
+      `${total} problems across ${[...new Set(data.map(d => d.company))].length} companies`;
+  }
 }
 
-/* ── STREAK ── */
+/* ================= STREAK ================= */
 function renderStreak() {
   const row = document.getElementById('streakRow');
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
   const today = new Date().getDay();
   const todayIdx = today === 0 ? 6 : today - 1;
-  row.innerHTML = '<span class="streak-label">This week</span>' + days.map((d, i) => {
-    let cls = 's-miss';
-    if (i === todayIdx) cls = 's-today';
-    else if (i < todayIdx) cls = 's-done';
-    return `<div class="streak-dot ${cls}">${d.slice(0,1)}</div>`;
-  }).join('');
+
+  row.innerHTML =
+    '<span class="streak-label">This week</span>' +
+    days.map((d, i) => {
+      let cls = 's-miss';
+      if (i === todayIdx) cls = 's-today';
+      else if (i < todayIdx) cls = 's-done';
+
+      return `<div class="streak-dot ${cls}">${d[0]}</div>`;
+    }).join('');
 }
 
-/* ── COMPANY FILTER ── */
+/* ================= COMPANY ================= */
 function updateCompanyFilter() {
   const companies = [...new Set(data.map(d => d.company))].sort();
   const sel = document.getElementById('companyFilter');
+
   sel.innerHTML = '<option value="">All companies</option>';
+
   companies.forEach(c => {
     const opt = document.createElement('option');
-    opt.value = c; opt.textContent = c;
+    opt.value = c;
+    opt.textContent = c;
     sel.appendChild(opt);
   });
 }
 
-/* ── RESET ── */
+/* ================= RESET ================= */
 function clearData() {
-  if (confirm('Delete all data and progress? This cannot be undone.')) {
-    localStorage.removeItem('dsa_data');
-    localStorage.removeItem('dsa_progress');
+  if (confirm('Delete all data and progress?')) {
+    localStorage.clear();
     location.reload();
   }
 }
