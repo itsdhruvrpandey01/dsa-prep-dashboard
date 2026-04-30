@@ -438,7 +438,53 @@ input[type=checkbox] {
       <button class="btn btn-danger" onclick="clearData()">Reset</button>
     </div>
   </div>
+<!-- CSV FORMAT MODAL -->
+<div id="csvModal" style="
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+">
+  <div style="
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+  ">
+    <h2 style="font-family: 'Syne'; margin-bottom: 12px;">
+      📄 Upload CSV Format
+    </h2>
 
+    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+      Your CSV should follow this format:
+    </p>
+
+    <pre style="
+      background: var(--surface2);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      overflow-x: auto;
+    ">
+Difficulty,Title,Frequency,Link
+MEDIUM,Two Sum,95.0,https://leetcode.com/problems/two-sum
+EASY,Happy Number,99.0,https://leetcode.com/problems/happy-number
+    </pre>
+
+    <p style="font-size: 11px; color: var(--muted); margin-top: 10px;">
+      ⚠️ Make sure the link column contains valid LeetCode URLs.
+    </p>
+
+    <div style="text-align: right; margin-top: 16px;">
+      <button class="btn btn-accent" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+</div>
   <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card c-purple">
@@ -548,6 +594,10 @@ const PAGE = 25;
 
 /* ================= INIT ================= */
 window.onload = function () {
+  const seen = localStorage.getItem("csv_help_seen");
+  if (!seen) {
+    document.getElementById("csvModal").style.display = "flex";
+  }
   const saved = localStorage.getItem('dsa_data');
   if (saved) {
     data = JSON.parse(saved);
@@ -556,6 +606,11 @@ window.onload = function () {
   applyFilters();
   renderStreak();
 };
+
+  function closeModal() {
+  document.getElementById("csvModal").style.display = "none";
+  localStorage.setItem("csv_help_seen", "true");
+}
 
 /* ================= CSV PARSE ================= */
 function parseCSV(text, company) {
