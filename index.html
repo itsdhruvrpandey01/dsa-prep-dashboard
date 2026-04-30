@@ -1,67 +1,539 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DSA Tracker </title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #13161e;
+  --surface2: #1a1e29;
+  --surface3: #222637;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaf0;
+  --muted: #6b7089;
+  --dim: #3d4259;
+  --accent: #7c6dfa;
+  --accent2: #a78bfa;
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251,191,36,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.12);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.1);
+  --radius: 10px;
+  --radius-lg: 14px;
+  font-size: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── LAYOUT ── */
+.wrapper { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-left h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.header-left h1 span { color: var(--accent2); }
+.header-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.btn:hover { background: var(--surface3); border-color: rgba(255,255,255,0.2); }
+.btn-accent {
+  background: rgba(124,109,250,0.15);
+  border-color: rgba(124,109,250,0.4);
+  color: var(--accent2);
+}
+.btn-accent:hover { background: rgba(124,109,250,0.25); }
+.btn-danger {
+  background: rgba(248,113,113,0.08);
+  border-color: rgba(248,113,113,0.25);
+  color: var(--red);
+}
+.btn-danger:hover { background: rgba(248,113,113,0.15); }
+.file-input { display: none; }
+
+/* ── STATS GRID ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.c-purple::before { background: var(--accent); }
+.stat-card.c-green::before { background: var(--green); }
+.stat-card.c-green-d::before { background: #4ade80; }
+.stat-card.c-yellow::before { background: var(--yellow); }
+.stat-card.c-red::before { background: var(--red); }
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.stat-card.c-purple .stat-val { color: var(--accent2); }
+.stat-card.c-green .stat-val { color: var(--green); }
+.stat-card.c-green-d .stat-val { color: #4ade80; }
+.stat-card.c-yellow .stat-val { color: var(--yellow); }
+.stat-card.c-red .stat-val { color: var(--red); }
+
+/* ── PROGRESS ── */
+.progress-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.progress-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.progress-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.progress-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent2);
+}
+.track {
+  height: 6px;
+  background: var(--surface3);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
+}
+.diff-bars { display: flex; gap: 16px; flex-wrap: wrap; }
+.diff-bar-item { flex: 1; min-width: 80px; }
+.diff-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.diff-bar-label span:last-child { color: var(--text); }
+.diff-track { height: 4px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
+.diff-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+.df-e { background: var(--green); }
+.df-m { background: var(--yellow); }
+.df-h { background: var(--red); }
+
+/* ── STREAK ── */
+.streak-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  align-items: center;
+}
+.streak-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
+.streak-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.s-done { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.s-miss { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
+.s-today { background: var(--accent); color: #fff; border: 1px solid var(--accent2); }
+
+/* ── CONTROLS ── */
+.controls-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 280px; }
+.search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+input[type=text], select {
+  width: 100%;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.search-wrap input { padding-left: 32px; }
+input[type=text]:focus, select:focus { border-color: rgba(124,109,250,0.5); }
+input[type=text]::placeholder { color: var(--dim); }
+select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7089' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+/* ── FILTER CHIPS ── */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.chip:hover { border-color: var(--border2); color: var(--text); }
+.chip.active { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+.chip-easy.active { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,0.3); }
+.chip-medium.active { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(251,191,36,0.3); }
+.chip-hard.active { background: var(--red-dim); color: var(--red); border-color: rgba(248,113,113,0.3); }
+.chip-solved.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(96,165,250,0.3); }
+
+/* ── TABLE ── */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+thead { background: var(--surface2); }
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border);
+}
+th:first-child { width: 44px; }
+th:nth-child(2) { width: auto; }
+th:nth-child(3) { width: 18%; }
+th:nth-child(4) { width: 13%; }
+th:last-child { width: 80px; }
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+tr.solved td { color: var(--dim); }
+tr.solved td:nth-child(2) { text-decoration: line-through; text-decoration-color: var(--dim); }
+
+input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.b-easy { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.b-medium { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+.b-hard { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+
+.solve-link {
+  color: var(--accent2);
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.solve-link:hover { opacity: 1; text-decoration: underline; }
+
+/* ── EMPTY ── */
+.empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.empty-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+.empty h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+.empty p { font-size: 12px; }
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.page-info { font-size: 11px; color: var(--muted); }
+.page-btns { display: flex; gap: 4px; }
+.pbtn {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  min-width: 32px;
+  text-align: center;
+}
+.pbtn:hover:not(:disabled) { border-color: var(--border2); color: var(--text); }
+.pbtn:disabled { opacity: 0.3; cursor: default; }
+.pbtn.cur { background: rgba(124,109,250,0.15); border-color: rgba(124,109,250,0.35); color: var(--accent2); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+</style>
 </head>
+<body>
+<div class="wrapper">
 
-<body class="bg-gray-100 text-gray-800">
-
-<div class="max-w-7xl mx-auto p-6">
-
-  <h1 class="text-3xl font-bold mb-4">🚀 DSA Tracker (Striver Style)</h1>
-
-  <!-- Upload -->
-  <div class="mb-4">
-    <input type="file" id="csvFiles" multiple accept=".csv"
-      class="p-2 border rounded bg-white"/>
-  </div>
-
-  <!-- Filters -->
-  <div class="flex flex-wrap gap-4 mb-4">
-
-    <input id="search" placeholder="Search questions..."
-      class="p-2 border rounded w-60"/>
-<button onclick="clearData()" 
-  class="mb-4 bg-red-500 text-white px-4 py-2 rounded">
-  Reset Sheet
-</button>
-    <select id="companyFilter" class="p-2 border rounded">
-      <option value="">All Companies</option>
-    </select>
-
-    <select id="difficultyFilter" class="p-2 border rounded">
-      <option value="">All Difficulty</option>
-      <option value="EASY">Easy</option>
-      <option value="MEDIUM">Medium</option>
-      <option value="HARD">Hard</option>
-    </select>
-
-  </div>
-
-  <!-- Progress -->
-  <div class="mb-4">
-    <p id="progressText" class="font-semibold"></p>
-    <div class="w-full bg-gray-300 rounded h-4">
-      <div id="progressBar" class="bg-green-500 h-4 rounded"></div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>DSA <span>Tracker</span></h1>
+      <div class="header-sub" id="headerSub">Upload CSV files to load your problem sets</div>
+    </div>
+    <div class="header-actions">
+      <label class="btn btn-accent" for="csvFiles">+ Upload CSV</label>
+      <input type="file" id="csvFiles" class="file-input" multiple accept=".csv">
+      <button class="btn btn-danger" onclick="clearData()">Reset</button>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="overflow-auto bg-white rounded shadow">
-    <table class="w-full text-sm">
-      <thead class="bg-gray-200">
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card c-purple">
+      <div class="stat-label">Total</div>
+      <div class="stat-val" id="sTotal">0</div>
+      <div class="stat-sub">problems loaded</div>
+    </div>
+    <div class="stat-card c-green">
+      <div class="stat-label">Solved</div>
+      <div class="stat-val" id="sSolved">0</div>
+      <div class="stat-sub" id="sSolvedPct">0% done</div>
+    </div>
+    <div class="stat-card c-green-d">
+      <div class="stat-label">Easy</div>
+      <div class="stat-val" id="sEasy">0</div>
+      <div class="stat-sub" id="sEasySub">0 solved</div>
+    </div>
+    <div class="stat-card c-yellow">
+      <div class="stat-label">Medium</div>
+      <div class="stat-val" id="sMed">0</div>
+      <div class="stat-sub" id="sMedSub">0 solved</div>
+    </div>
+    <div class="stat-card c-red">
+      <div class="stat-label">Hard</div>
+      <div class="stat-val" id="sHard">0</div>
+      <div class="stat-sub" id="sHardSub">0 solved</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS CARD -->
+  <div class="progress-card">
+    <div class="progress-top">
+      <div>
+        <div class="progress-title">Overall Progress</div>
+        <div class="progress-meta" id="progLabel">0 of 0 problems solved</div>
+      </div>
+      <div class="progress-pct" id="progPct">0%</div>
+    </div>
+    <div class="track">
+      <div class="fill" id="progBar" style="width:0%"></div>
+    </div>
+    <div class="diff-bars">
+      <div class="diff-bar-item">
+        <div class="diff-bar-label"><span>Easy</span><span id="dbEasyLbl">0/0</span></div>
+        <div class="diff-track"><div class="diff-fill df-e" id="dbEasy" style="width:0%"></div></div>
+      </div>
+      <div class="diff-bar-item">
+        <div class="diff-bar-label"><span>Medium</span><span id="dbMedLbl">0/0</span></div>
+        <div class="diff-track"><div class="diff-fill df-m" id="dbMed" style="width:0%"></div></div>
+      </div>
+      <div class="diff-bar-item">
+        <div class="diff-bar-label"><span>Hard</span><span id="dbHardLbl">0/0</span></div>
+        <div class="diff-track"><div class="diff-fill df-h" id="dbHard" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="streak-row" id="streakRow"></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls-row">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search problems..." oninput="applyFilters()">
+    </div>
+    <select id="companyFilter" onchange="applyFilters()">
+      <option value="">All companies</option>
+    </select>
+  </div>
+  <div class="chips">
+    <div class="chip active" id="chip-all" onclick="setDiff('')">All</div>
+    <div class="chip chip-easy" id="chip-easy" onclick="setDiff('EASY')">Easy</div>
+    <div class="chip chip-medium" id="chip-medium" onclick="setDiff('MEDIUM')">Medium</div>
+    <div class="chip chip-hard" id="chip-hard" onclick="setDiff('HARD')">Hard</div>
+    <div class="chip chip-solved" id="chip-solved" onclick="setDiff('solved')">Solved</div>
+    <div class="chip" id="chip-unsolved" onclick="setDiff('unsolved')">Unsolved</div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <table>
+      <thead>
         <tr>
-          <th class="p-2">✔</th>
-          <th class="p-2">Title</th>
-          <th class="p-2">Company</th>
-          <th class="p-2">Difficulty</th>
-          <th class="p-2">Link</th>
+          <th></th>
+          <th>Problem</th>
+          <th>Company</th>
+          <th>Difficulty</th>
+          <th>Link</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
+    <div class="pagination">
+      <span class="page-info" id="pageInfo">—</span>
+      <div class="page-btns" id="pageBtns"></div>
+    </div>
   </div>
 
 </div>
@@ -69,166 +541,216 @@
 <script>
 let data = [];
 let filteredData = [];
+let progress = JSON.parse(localStorage.getItem('dsa_progress') || '{}');
+let activeDiff = '';
+let currentPage = 1;
+const PAGE = 25;
 
-// 🔥 unified progress store
-let progress = JSON.parse(localStorage.getItem("progress")) || {};
-
-const tableBody = document.getElementById("tableBody");
-const searchInput = document.getElementById("search");
-const companyFilter = document.getElementById("companyFilter");
-const difficultyFilter = document.getElementById("difficultyFilter");
-
-// ================= LOAD FROM STORAGE =================
 window.onload = function () {
-  const savedData = localStorage.getItem("dsaData");
-
-  if (savedData) {
-    data = JSON.parse(savedData);
+  const saved = localStorage.getItem('dsa_data');
+  if (saved) {
+    data = JSON.parse(saved);
     updateCompanyFilter();
     applyFilters();
   }
+  renderStreak();
 };
 
-// ================= CSV PARSER =================
-function parseCSV(text, companyName) {
-  const rows = text.split("\n").slice(1);
-
-  return rows.map(row => {
-    const cols = row.split(",");
+/* ── CSV PARSE ── */
+function parseCSV(text, company) {
+  return text.split('\n').slice(1).map(row => {
+    const cols = row.split(',');
+    if (!cols[1] || !cols[1].trim()) return null;
     return {
-      title: cols[1],
-      difficulty: cols[0]?.toUpperCase(),
-      link: cols[3],
-      company: companyName,
-      id: cols[1] + "_" + companyName
+      title: cols[1].trim(),
+      difficulty: (cols[0] || '').trim().toUpperCase(),
+      link: (cols[3] || '').trim(),
+      company: company,
+      id: cols[1].trim() + '_' + company
     };
-  }).filter(r => r.title);
+  }).filter(Boolean);
 }
 
-// ================= UPLOAD =================
-document.getElementById("csvFiles").addEventListener("change", function(e) {
-  const files = e.target.files;
-
-  Array.from(files).forEach(file => {
+/* ── UPLOAD ── */
+document.getElementById('csvFiles').addEventListener('change', function (e) {
+  Array.from(e.target.files).forEach(file => {
     const reader = new FileReader();
-
-    reader.onload = function(evt) {
-      const parsed = parseCSV(evt.target.result, file.name.replace(".csv", ""));
-
-      // 🔥 prevent duplicates
+    reader.onload = function (evt) {
+      const parsed = parseCSV(evt.target.result, file.name.replace('.csv', ''));
       const existingIds = new Set(data.map(d => d.id));
-      const newData = parsed.filter(item => !existingIds.has(item.id));
-
-      data.push(...newData);
-
-      // 🔥 SAVE DATA
-      localStorage.setItem("dsaData", JSON.stringify(data));
-
+      const newItems = parsed.filter(i => !existingIds.has(i.id));
+      data.push(...newItems);
+      localStorage.setItem('dsa_data', JSON.stringify(data));
       updateCompanyFilter();
       applyFilters();
+      document.getElementById('headerSub').textContent = data.length + ' problems across ' + [...new Set(data.map(d => d.company))].length + ' companies';
     };
-
     reader.readAsText(file);
   });
+  e.target.value = '';
 });
 
-// ================= FILTERS =================
+/* ── DIFF FILTER ── */
+function setDiff(d) {
+  activeDiff = d;
+  currentPage = 1;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  const map = { '': 'all', 'EASY': 'easy', 'MEDIUM': 'medium', 'HARD': 'hard', 'solved': 'solved', 'unsolved': 'unsolved' };
+  const el = document.getElementById('chip-' + (map[d] || 'all'));
+  if (el) el.classList.add('active');
+  applyFilters();
+}
+
+/* ── FILTERS ── */
 function applyFilters() {
-  const search = searchInput.value.toLowerCase();
-  const company = companyFilter.value;
-  const difficulty = difficultyFilter.value;
-
+  const search = document.getElementById('search').value.toLowerCase();
+  const company = document.getElementById('companyFilter').value;
   filteredData = data.filter(item => {
-    return (
-      item.title.toLowerCase().includes(search) &&
-      (company === "" || item.company === company) &&
-      (difficulty === "" || item.difficulty === difficulty)
-    );
+    if (search && !item.title.toLowerCase().includes(search)) return false;
+    if (company && item.company !== company) return false;
+    if (activeDiff === 'solved') return !!progress[item.id];
+    if (activeDiff === 'unsolved') return !progress[item.id];
+    if (activeDiff && !['solved','unsolved'].includes(activeDiff) && item.difficulty !== activeDiff) return false;
+    return true;
   });
-
+  currentPage = 1;
   renderTable();
-  updateProgress();
+  updateStats();
 }
 
-searchInput.addEventListener("input", applyFilters);
-companyFilter.addEventListener("change", applyFilters);
-difficultyFilter.addEventListener("change", applyFilters);
-
-// ================= RENDER =================
+/* ── RENDER ── */
 function renderTable() {
-  tableBody.innerHTML = "";
-
-  filteredData.forEach(item => {
-    const solved = progress[item.id] === true;
-
-    const row = `
-      <tr class="border-b">
-        <td class="p-2 text-center">
-          <input type="checkbox" ${solved ? "checked" : ""}
-            onchange="toggleSolved('${item.id}')"/>
-        </td>
-        <td class="p-2">${item.title}</td>
-        <td class="p-2">${item.company}</td>
-        <td class="p-2">
-          <span class="px-2 py-1 rounded text-white ${
-            item.difficulty === "EASY" ? "bg-green-500" :
-            item.difficulty === "MEDIUM" ? "bg-yellow-500" :
-            "bg-red-500"
-          }">${item.difficulty}</span>
-        </td>
-        <td class="p-2">
-          <a href="${item.link}" target="_blank"
-            class="text-blue-600 underline">Solve</a>
-        </td>
-      </tr>
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  if (filteredData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><span class="empty-icon">🗂</span><h3>${data.length === 0 ? 'No problems loaded' : 'No matches'}</h3><p>${data.length === 0 ? 'Upload a CSV to get started' : 'Try adjusting your filters'}</p></div></td></tr>`;
+    document.getElementById('pageInfo').textContent = '—';
+    document.getElementById('pageBtns').innerHTML = '';
+    return;
+  }
+  const start = (currentPage - 1) * PAGE;
+  const slice = filteredData.slice(start, start + PAGE);
+  slice.forEach(item => {
+    const solved = !!progress[item.id];
+    const diff = item.difficulty;
+    const badgeCls = diff === 'EASY' ? 'b-easy' : diff === 'MEDIUM' ? 'b-medium' : 'b-hard';
+    const diffLabel = diff ? diff[0] + diff.slice(1).toLowerCase() : '—';
+    const tr = document.createElement('tr');
+    if (solved) tr.className = 'solved';
+    const safeId = item.id.replace(/'/g, "\\'");
+    tr.innerHTML = `
+      <td style="text-align:center"><input type="checkbox" ${solved ? 'checked' : ''} onchange="toggleSolved('${safeId}')"></td>
+      <td title="${item.title}">${item.title}</td>
+      <td style="color:var(--muted);font-size:12px" title="${item.company}">${item.company}</td>
+      <td><span class="badge ${badgeCls}">${diffLabel}</span></td>
+      <td>${item.link ? `<a class="solve-link" href="${item.link}" target="_blank" rel="noopener">open →</a>` : '<span style="color:var(--dim)">—</span>'}</td>
     `;
-
-    tableBody.innerHTML += row;
+    tbody.appendChild(tr);
   });
+  renderPagination();
 }
 
-// ================= TOGGLE =================
+function renderPagination() {
+  const total = filteredData.length;
+  const totalPages = Math.ceil(total / PAGE);
+  const start = (currentPage - 1) * PAGE;
+  document.getElementById('pageInfo').textContent = `${start + 1}–${Math.min(start + PAGE, total)} of ${total}`;
+  const container = document.getElementById('pageBtns');
+  container.innerHTML = '';
+  const prev = document.createElement('button');
+  prev.className = 'pbtn'; prev.textContent = '←'; prev.disabled = currentPage === 1;
+  prev.onclick = () => { currentPage--; renderTable(); };
+  container.appendChild(prev);
+  let s = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+  let e = Math.min(totalPages, s + 4);
+  for (let i = s; i <= e; i++) {
+    const b = document.createElement('button');
+    b.className = 'pbtn' + (i === currentPage ? ' cur' : '');
+    b.textContent = i;
+    const pg = i;
+    b.onclick = () => { currentPage = pg; renderTable(); };
+    container.appendChild(b);
+  }
+  const next = document.createElement('button');
+  next.className = 'pbtn'; next.textContent = '→'; next.disabled = currentPage === totalPages;
+  next.onclick = () => { currentPage++; renderTable(); };
+  container.appendChild(next);
+}
+
+/* ── TOGGLE ── */
 function toggleSolved(id) {
   progress[id] = !progress[id];
-
-  // 🔥 SAVE PROGRESS
-  localStorage.setItem("progress", JSON.stringify(progress));
-
-  updateProgress();
+  localStorage.setItem('dsa_progress', JSON.stringify(progress));
+  updateStats();
+  renderTable();
 }
 
-// ================= PROGRESS =================
-function updateProgress() {
-  const total = filteredData.length;
-
-  const solved = filteredData.filter(item =>
-    progress[item.id] === true
-  ).length;
-
-  const percent = total ? (solved / total) * 100 : 0;
-
-  document.getElementById("progressText").innerText =
-    `Solved ${solved} / ${total}`;
-
-  document.getElementById("progressBar").style.width = percent + "%";
+/* ── STATS ── */
+function updateStats() {
+  const total = data.length;
+  const solved = data.filter(i => progress[i.id]).length;
+  const pct = total ? Math.round((solved / total) * 100) : 0;
+  const easy = data.filter(i => i.difficulty === 'EASY');
+  const med = data.filter(i => i.difficulty === 'MEDIUM');
+  const hard = data.filter(i => i.difficulty === 'HARD');
+  const es = easy.filter(i => progress[i.id]).length;
+  const ms = med.filter(i => progress[i.id]).length;
+  const hs = hard.filter(i => progress[i.id]).length;
+  document.getElementById('sTotal').textContent = total;
+  document.getElementById('sSolved').textContent = solved;
+  document.getElementById('sSolvedPct').textContent = pct + '% done';
+  document.getElementById('sEasy').textContent = easy.length;
+  document.getElementById('sEasySub').textContent = es + ' solved';
+  document.getElementById('sMed').textContent = med.length;
+  document.getElementById('sMedSub').textContent = ms + ' solved';
+  document.getElementById('sHard').textContent = hard.length;
+  document.getElementById('sHardSub').textContent = hs + ' solved';
+  document.getElementById('progLabel').textContent = solved + ' of ' + total + ' problems solved';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progBar').style.width = pct + '%';
+  const epct = easy.length ? Math.round((es / easy.length) * 100) : 0;
+  const mpct = med.length ? Math.round((ms / med.length) * 100) : 0;
+  const hpct = hard.length ? Math.round((hs / hard.length) * 100) : 0;
+  document.getElementById('dbEasy').style.width = epct + '%';
+  document.getElementById('dbEasyLbl').textContent = es + '/' + easy.length;
+  document.getElementById('dbMed').style.width = mpct + '%';
+  document.getElementById('dbMedLbl').textContent = ms + '/' + med.length;
+  document.getElementById('dbHard').style.width = hpct + '%';
+  document.getElementById('dbHardLbl').textContent = hs + '/' + hard.length;
+  if (total > 0) document.getElementById('headerSub').textContent = total + ' problems across ' + [...new Set(data.map(d => d.company))].length + ' companies';
 }
 
-// ================= COMPANY FILTER =================
+/* ── STREAK ── */
+function renderStreak() {
+  const row = document.getElementById('streakRow');
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today = new Date().getDay();
+  const todayIdx = today === 0 ? 6 : today - 1;
+  row.innerHTML = '<span class="streak-label">This week</span>' + days.map((d, i) => {
+    let cls = 's-miss';
+    if (i === todayIdx) cls = 's-today';
+    else if (i < todayIdx) cls = 's-done';
+    return `<div class="streak-dot ${cls}">${d.slice(0,1)}</div>`;
+  }).join('');
+}
+
+/* ── COMPANY FILTER ── */
 function updateCompanyFilter() {
-  const companies = [...new Set(data.map(d => d.company))];
-
-  companyFilter.innerHTML = `<option value="">All Companies</option>`;
-
+  const companies = [...new Set(data.map(d => d.company))].sort();
+  const sel = document.getElementById('companyFilter');
+  sel.innerHTML = '<option value="">All companies</option>';
   companies.forEach(c => {
-    companyFilter.innerHTML += `<option value="${c}">${c}</option>`;
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
   });
 }
 
-// ================= RESET =================
+/* ── RESET ── */
 function clearData() {
-  if (confirm("This will delete all data & progress. Continue?")) {
-    localStorage.removeItem("dsaData");
-    localStorage.removeItem("progress");
+  if (confirm('Delete all data and progress? This cannot be undone.')) {
+    localStorage.removeItem('dsa_data');
+    localStorage.removeItem('dsa_progress');
     location.reload();
   }
 }
