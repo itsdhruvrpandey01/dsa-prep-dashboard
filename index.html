@@ -301,6 +301,7 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  overflow-x:auto;
 }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 thead { background: var(--surface2); }
@@ -334,7 +335,45 @@ tbody tr { transition: background 0.1s; }
 tbody tr:hover { background: rgba(255,255,255,0.025); }
 tr.solved td { color: var(--dim); }
 tr.solved td:nth-child(2) { text-decoration: line-through; text-decoration-color: var(--dim); }
+@media (max-width: 768px) {
 
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    background: var(--surface2);
+    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: normal;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    margin-right: 10px;
+  }
+
+  td:first-child {
+    justify-content: center;
+  }
+}
 input[type=checkbox] {
   width: 15px;
   height: 15px;
@@ -741,19 +780,21 @@ function renderTable() {
     if (solved) tr.classList.add('solved');
 
     tr.innerHTML = `
-      <td style="text-align:center">
-        <input type="checkbox" ${solved ? 'checked' : ''}
-          onchange="toggleSolved('${item.id}')">
-      </td>
-      <td title="${item.title}">${item.title}</td>
-      <td style="color:var(--muted);font-size:12px">${item.company}</td>
-      <td><span class="badge ${badgeCls}">${item.difficulty}</span></td>
-      <td>
-        ${item.link 
-          ? `<a class="solve-link" href="${item.link}" target="_blank">open →</a>`
-          : '<span style="color:var(--dim)">—</span>'}
-      </td>
-    `;
+  <td data-label="Done">
+    <input type="checkbox" ${solved ? 'checked' : ''}
+      onchange="toggleSolved('${item.id}')">
+  </td>
+  <td data-label="Problem">${item.title}</td>
+  <td data-label="Company">${item.company}</td>
+  <td data-label="Difficulty">
+    <span class="badge ${badgeCls}">${item.difficulty}</span>
+  </td>
+  <td data-label="Link">
+    ${item.link 
+      ? `<a class="solve-link" href="${item.link}" target="_blank" rel="noopener noreferrer">open →</a>`
+      : '<span style="color:var(--dim)">—</span>'}
+  </td>
+`;
 
     tbody.appendChild(tr);
   });
