@@ -4,623 +4,674 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DSA Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0d0f14;
-  --surface: #13161e;
-  --surface2: #1a1e29;
-  --surface3: #222637;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #e8eaf0;
-  --muted: #6b7089;
-  --dim: #3d4259;
-  --accent: #7c6dfa;
-  --accent2: #a78bfa;
-  --green: #34d399;
-  --green-dim: rgba(52,211,153,0.12);
-  --yellow: #fbbf24;
-  --yellow-dim: rgba(251,191,36,0.12);
-  --red: #f87171;
-  --red-dim: rgba(248,113,113,0.12);
-  --blue: #60a5fa;
-  --blue-dim: rgba(96,165,250,0.1);
-  --radius: 10px;
-  --radius-lg: 14px;
-  font-size: 14px;
+  --bg: #0b0c0e;
+  --surface: #111215;
+  --surface2: #17191d;
+  --surface3: #1e2027;
+  --surface4: #252830;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --border3: rgba(255,255,255,0.15);
+  --text: #e2e4ea;
+  --text2: #9499ad;
+  --text3: #555a6e;
+  --accent: #6c5ce7;
+  --accent-light: #a29bfe;
+  --green: #00b894;
+  --green-bg: rgba(0,184,148,0.08);
+  --green-border: rgba(0,184,148,0.2);
+  --yellow: #fdcb6e;
+  --yellow-bg: rgba(253,203,110,0.08);
+  --yellow-border: rgba(253,203,110,0.2);
+  --red: #ff7675;
+  --red-bg: rgba(255,118,117,0.08);
+  --red-border: rgba(255,118,117,0.2);
+  --r: 8px;
+  --r2: 12px;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+.mono { font-family: 'JetBrains Mono', monospace; }
 
-body {
-  font-family: 'DM Mono', monospace;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.6;
-}
+/* ── LAYOUT ── */
+.app { display: flex; min-height: 100vh; }
 
-.wrapper { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
-
-/* ── HEADER ── */
-.header {
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  transition: transform 0.25s ease;
+  z-index: 50;
 }
-.header-left h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.5px;
+.logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.logo-text { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+.logo-text span { color: var(--accent-light); }
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.sidebar-section { padding: 0 12px; margin-bottom: 24px; }
+.sidebar-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); padding: 0 8px; margin-bottom: 6px; }
+.nav-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px; border-radius: var(--r); cursor: pointer;
+  transition: all 0.15s; margin-bottom: 2px; font-size: 13px; color: var(--text2);
 }
-.header-left h1 span { color: var(--accent2); }
-.header-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 4px;
-  font-style: italic;
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: rgba(108,92,231,0.12); color: var(--accent-light); }
+.nav-icon { font-size: 12px; margin-right: 8px; opacity: 0.7; }
+.nav-badge { font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 1px 6px; border-radius: 99px; background: var(--surface3); color: var(--text3); }
+.nav-item.active .nav-badge { background: rgba(108,92,231,0.2); color: var(--accent-light); }
+.diff-nav-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; border-radius: var(--r); cursor: pointer;
+  transition: all 0.15s; margin-bottom: 2px; font-size: 12px; color: var(--text2);
 }
-.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.diff-nav-item:hover { background: var(--surface2); }
+.diff-nav-item.active-easy { background: var(--green-bg); color: var(--green); }
+.diff-nav-item.active-medium { background: var(--yellow-bg); color: var(--yellow); }
+.diff-nav-item.active-hard { background: var(--red-bg); color: var(--red); }
+.diff-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
+.diff-dot.easy { background: var(--green); }
+.diff-dot.medium { background: var(--yellow); }
+.diff-dot.hard { background: var(--red); }
+.sidebar-stats { padding: 0 12px; margin-top: auto; }
+.mini-progress { padding: 14px; background: var(--surface2); border-radius: var(--r2); border: 1px solid var(--border); }
+.mini-progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.mini-progress-label { font-size: 11px; color: var(--text2); }
+.mini-progress-pct { font-size: 13px; font-weight: 600; color: var(--accent-light); font-family: 'JetBrains Mono', monospace; }
+.mini-track { height: 3px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
+.mini-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); transition: width 0.5s ease; }
+.mini-counts { display: flex; gap: 8px; margin-top: 10px; }
+.mini-count { flex: 1; text-align: center; }
+.mini-count-val { font-size: 14px; font-weight: 600; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+.mini-count-label { font-size: 10px; color: var(--text3); margin-top: 3px; }
+.mc-e { color: var(--green); }
+.mc-m { color: var(--yellow); }
+.mc-h { color: var(--red); }
 
-.btn {
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  padding: 8px 16px;
-  border-radius: var(--radius);
+/* ── MAIN ── */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  position: sticky; top: 0; z-index: 40;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.hamburger {
+  display: none;
+  width: 34px; height: 34px;
+  border-radius: var(--r);
   border: 1px solid var(--border2);
   background: var(--surface2);
-  color: var(--text);
   cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  letter-spacing: 0.03em;
-}
-.btn:hover { background: var(--surface3); border-color: rgba(255,255,255,0.2); }
-.btn-accent {
-  background: rgba(124,109,250,0.15);
-  border-color: rgba(124,109,250,0.4);
-  color: var(--accent2);
-}
-.btn-accent:hover { background: rgba(124,109,250,0.25); }
-.btn-danger {
-  background: rgba(248,113,113,0.08);
-  border-color: rgba(248,113,113,0.25);
-  color: var(--red);
-}
-.btn-danger:hover { background: rgba(248,113,113,0.15); }
-.file-input { display: none; }
-
-/* ── STATS GRID ── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-.stat-card:hover { border-color: var(--border2); }
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-}
-.stat-card.c-purple::before { background: var(--accent); }
-.stat-card.c-green::before { background: var(--green); }
-.stat-card.c-green-d::before { background: #4ade80; }
-.stat-card.c-yellow::before { background: var(--yellow); }
-.stat-card.c-red::before { background: var(--red); }
-.stat-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.stat-val {
-  font-family: 'Syne', sans-serif;
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1;
-}
-.stat-sub {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-.stat-card.c-purple .stat-val { color: var(--accent2); }
-.stat-card.c-green .stat-val { color: var(--green); }
-.stat-card.c-green-d .stat-val { color: #4ade80; }
-.stat-card.c-yellow .stat-val { color: var(--yellow); }
-.stat-card.c-red .stat-val { color: var(--red); }
-
-/* ── PROGRESS ── */
-.progress-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px;
-  margin-bottom: 20px;
-}
-.progress-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.progress-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.progress-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.progress-pct {
-  font-family: 'Syne', sans-serif;
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--accent2);
-}
-.track {
-  height: 6px;
-  background: var(--surface3);
-  border-radius: 99px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-.fill {
-  height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 0;
-}
-.diff-bars { display: flex; gap: 16px; flex-wrap: wrap; }
-.diff-bar-item { flex: 1; min-width: 80px; }
-.diff-bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: var(--muted);
-  margin-bottom: 5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.diff-bar-label span:last-child { color: var(--text); }
-.diff-track { height: 4px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
-.diff-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
-.df-e { background: var(--green); }
-.df-m { background: var(--yellow); }
-.df-h { background: var(--red); }
-
-/* ── STREAK ── */
-.streak-row {
-  display: flex;
-  gap: 6px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  align-items: center;
-  flex-wrap: wrap;
-}
-.streak-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
-.streak-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  gap: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s;
 }
-.s-done { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
-.s-miss { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
-.s-today { background: var(--accent); color: #fff; border: 1px solid var(--accent2); }
-
-/* ── CONTROLS ── */
-.controls-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.search-wrap { position: relative; flex: 1; min-width: 160px; max-width: 280px; }
-.search-wrap svg {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  pointer-events: none;
-}
-input[type=text], select {
+.hamburger:hover { background: var(--surface3); }
+.hamburger span { display: block; width: 14px; height: 1.5px; background: var(--text2); border-radius: 2px; transition: all 0.2s; }
+.hamburger.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+.breadcrumb { font-size: 12px; color: var(--text3); white-space: nowrap; }
+.breadcrumb span { color: var(--text); font-weight: 500; }
+.search-box { position: relative; flex: 1; min-width: 0; max-width: 300px; }
+.search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); }
+.search-box input {
   width: 100%;
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  padding: 9px 12px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-  appearance: none;
-  -webkit-appearance: none;
-}
-.search-wrap input { padding-left: 32px; }
-input[type=text]:focus, select:focus { border-color: rgba(124,109,250,0.5); }
-input[type=text]::placeholder { color: var(--dim); }
-select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7089' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-
-/* ── FILTER CHIPS ── */
-.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-.chip {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  padding: 5px 12px;
-  border-radius: 99px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--muted);
-  cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 12px;
+  padding: 7px 12px 7px 32px;
+  border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text); outline: none;
   transition: all 0.15s;
-  letter-spacing: 0.04em;
 }
-.chip:hover { border-color: var(--border2); color: var(--text); }
-.chip.active { background: var(--surface2); color: var(--text); border-color: var(--border2); }
-.chip-easy.active { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,0.3); }
-.chip-medium.active { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(251,191,36,0.3); }
-.chip-hard.active { background: var(--red-dim); color: var(--red); border-color: rgba(248,113,113,0.3); }
-.chip-solved.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(96,165,250,0.3); }
+.search-box input:focus { border-color: rgba(108,92,231,0.4); background: var(--surface3); }
+.search-box input::placeholder { color: var(--text3); }
+.topbar-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.tbtn {
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: var(--r);
+  border: 1px solid var(--border2); background: var(--surface2); color: var(--text2);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.tbtn:hover { background: var(--surface3); color: var(--text); border-color: var(--border3); }
+.tbtn-accent { background: rgba(108,92,231,0.1); border-color: rgba(108,92,231,0.3); color: var(--accent-light); }
+.tbtn-accent:hover { background: rgba(108,92,231,0.18); }
+.tbtn-icon { padding: 6px 10px; }
+.file-input { display: none; }
 
-/* ── TABLE WRAPPER ── */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-.table-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
+/* ── CONTENT ── */
+.content { padding: 20px; flex: 1; }
 
-/* ── DESKTOP TABLE ── */
+/* ── STATS ── */
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 18px; }
+.stat-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 14px 16px;
+  position: relative; transition: border-color 0.15s;
+}
+.stat-box:hover { border-color: var(--border2); }
+.stat-box::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 12px; right: 12px; height: 1px;
+  border-radius: 0 0 99px 99px;
+}
+.stat-box.s-total::after { background: var(--accent); opacity: 0.5; }
+.stat-box.s-solved::after { background: var(--green); opacity: 0.5; }
+.stat-box.s-easy::after { background: var(--green); opacity: 0.4; }
+.stat-box.s-med::after { background: var(--yellow); opacity: 0.5; }
+.stat-box.s-hard::after { background: var(--red); opacity: 0.5; }
+.stat-label2 { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 6px; }
+.stat-num { font-size: 26px; font-weight: 600; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+.s-total .stat-num { color: var(--accent-light); }
+.s-solved .stat-num { color: var(--green); }
+.s-easy .stat-num { color: var(--green); }
+.s-med .stat-num { color: var(--yellow); }
+.s-hard .stat-num { color: var(--red); }
+.stat-note { font-size: 10px; color: var(--text3); margin-top: 5px; font-family: 'JetBrains Mono', monospace; }
+
+/* ── STREAK ── */
+.streak-section { margin-bottom: 18px; }
+.streak-header { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px; }
+.streak-grid { display: flex; gap: 4px; }
+.sday {
+  flex: 1; border-radius: 5px; padding: 7px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  border: 1px solid var(--border); background: var(--surface); cursor: default;
+}
+.sday-name { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); }
+.sday-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--surface3); }
+.sday.done { background: var(--green-bg); border-color: var(--green-border); }
+.sday.done .sday-dot { background: var(--green); }
+.sday.done .sday-name { color: var(--green); }
+.sday.today { background: rgba(108,92,231,0.1); border-color: rgba(108,92,231,0.3); }
+.sday.today .sday-dot { background: var(--accent); }
+.sday.today .sday-name { color: var(--accent-light); }
+
+/* ── PANEL ── */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; }
+.panel-header {
+  padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); background: var(--surface2);
+  gap: 10px; flex-wrap: wrap;
+}
+.panel-title { font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.panel-title strong { color: var(--text); font-weight: 600; }
+.filter-row { display: flex; align-items: center; gap: 6px; }
+select {
+  font-family: 'Inter', sans-serif; font-size: 12px;
+  padding: 5px 26px 5px 9px;
+  border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--surface3); color: var(--text2); outline: none; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555a6e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 7px center;
+  transition: all 0.15s;
+}
+select:hover { background-color: var(--surface4); border-color: var(--border3); color: var(--text); }
+
+/* ── TABLE ── */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 thead { background: var(--surface2); }
 th {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+  padding: 10px 14px; text-align: left;
+  font-size: 10px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
 }
-
-/* Desktop column widths */
-th:nth-child(1) { width: 44px; }   /* checkbox */
-th:nth-child(2) { width: auto; }   /* title */
-th:nth-child(3) { width: 18%; }    /* company */
-th:nth-child(4) { width: 110px; }  /* difficulty */
-th:nth-child(5) { width: 64px; }   /* link */
-
+th:nth-child(1) { width: 38px; }
+th:nth-child(2) { width: auto; }
+th:nth-child(3) { width: 130px; }
+th:nth-child(4) { width: 96px; }
+th:nth-child(5) { width: 46px; }
 td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  vertical-align: middle;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 13px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  vertical-align: middle; overflow: hidden;
+  white-space: nowrap; font-size: 12px;
 }
 tr:last-child td { border-bottom: none; }
 tbody tr { transition: background 0.1s; }
-tbody tr:hover { background: rgba(255,255,255,0.025); }
-tr.solved td { color: var(--dim); }
-tr.solved td:nth-child(2) { text-decoration: line-through; text-decoration-color: var(--dim); }
-
-input[type=checkbox] {
-  width: 15px;
-  height: 15px;
-  accent-color: var(--accent);
-  cursor: pointer;
-  display: block;
-  margin: 0 auto;
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+tr.solved td { opacity: 0.38; }
+tr.solved .prob-title { text-decoration: line-through; text-decoration-color: var(--text3); }
+input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; display: block; margin: 0 auto; }
+.prob-cell { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.prob-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); flex-shrink: 0; width: 28px; }
+.prob-title { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.company-cell { display: flex; align-items: center; gap: 6px; }
+.company-logo {
+  width: 18px; height: 18px; border-radius: 4px; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--text2);
+  flex-shrink: 0; border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
 }
-
+.company-name { font-size: 12px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .badge {
-  display: inline-block;
-  padding: 2px 9px;
-  border-radius: 99px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
 }
-.b-easy   { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
-.b-medium { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
-.b-hard   { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
-
-/* Link icon button */
-.solve-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid rgba(124,109,250,0.25);
-  background: rgba(124,109,250,0.08);
-  color: var(--accent2);
-  text-decoration: none;
+.badge::before { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; }
+.b-easy { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.b-easy::before { background: var(--green); }
+.b-medium { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.b-medium::before { background: var(--yellow); }
+.b-hard { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.b-hard::before { background: var(--red); }
+.link-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid rgba(108,92,231,0.2); background: rgba(108,92,231,0.06);
+  color: var(--accent-light); text-decoration: none; font-size: 11px;
   transition: all 0.15s;
-  font-size: 12px;
 }
-.solve-link:hover {
-  background: rgba(124,109,250,0.2);
-  border-color: rgba(124,109,250,0.5);
-}
-
-/* ── MOBILE CARD LAYOUT ── */
-@media (max-width: 600px) {
-  .wrapper { padding: 20px 14px 60px; }
-
-  /* Hide desktop table header cols we collapse */
-  th:nth-child(3),  /* company header */
-  td:nth-child(3)   /* company cell */
-  { display: none; }
-
-  /* Adjust column widths for mobile */
-  th:nth-child(1) { width: 36px; }
-  th:nth-child(2) { width: auto; }
-  th:nth-child(4) { width: 82px; }
-  th:nth-child(5) { width: 48px; }
-
-  td { padding: 11px 12px; font-size: 12px; }
-  th { padding: 10px 12px; }
-
-  /* Title cell: show problem name + company as subtitle */
-  td.td-title { white-space: normal; line-height: 1.4; }
-  td.td-title .title-main { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  td.td-title .title-company {
-    display: block;
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Compact link icon */
-  .solve-link { width: 26px; height: 26px; font-size: 11px; }
-
-  /* Stats: 2-col on mobile */
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .stat-val { font-size: 24px; }
-
-  /* Search takes full row */
-  .search-wrap { max-width: 100%; }
-}
-
-/* ── EMPTY ── */
-.empty {
-  padding: 48px 24px;
-  text-align: center;
-  color: var(--muted);
-}
-.empty-icon { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.5; }
-.empty h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--dim);
-  margin-bottom: 6px;
-}
-.empty p { font-size: 12px; }
+.link-btn:hover { background: rgba(108,92,231,0.15); border-color: rgba(108,92,231,0.4); }
 
 /* ── PAGINATION ── */
 .pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 8px;
 }
-.page-info { font-size: 11px; color: var(--muted); }
-.page-btns { display: flex; gap: 4px; }
+.page-info { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.page-btns { display: flex; gap: 3px; }
 .pbtn {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s;
-  min-width: 32px;
-  text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 4px 8px; border-radius: 5px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text3); cursor: pointer;
+  transition: all 0.15s; min-width: 28px; text-align: center;
 }
-.pbtn:hover:not(:disabled) { border-color: var(--border2); color: var(--text); }
+.pbtn:hover:not(:disabled) { border-color: var(--border2); color: var(--text); background: var(--surface3); }
 .pbtn:disabled { opacity: 0.3; cursor: default; }
-.pbtn.cur { background: rgba(124,109,250,0.15); border-color: rgba(124,109,250,0.35); color: var(--accent2); }
+.pbtn.cur { background: rgba(108,92,231,0.12); border-color: rgba(108,92,231,0.35); color: var(--accent-light); }
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ── EMPTY ── */
+.empty { padding: 52px 24px; text-align: center; }
+.empty-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 16px; }
+.empty h3 { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+.empty p { font-size: 12px; color: var(--text3); }
+
+/* ── MOBILE BOTTOM NAV ── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 60;
+  flex-direction: row;
+}
+.mbn-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  padding: 4px 6px;
+  cursor: pointer; transition: all 0.15s;
+  border-radius: var(--r); margin: 0 3px;
+}
+.mbn-item:hover { background: var(--surface2); }
+.mbn-item.active { background: rgba(108,92,231,0.1); }
+.mbn-icon { font-size: 14px; line-height: 1; }
+.mbn-label { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); }
+.mbn-item.active .mbn-label { color: var(--accent-light); }
+.mbn-item.active .mbn-icon { filter: brightness(1.3); }
+
+/* ── DRAWER OVERLAY ── */
+.drawer-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 45;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.drawer-overlay.open { opacity: 1; }
+
+/* ── MOBILE FILTER SHEET ── */
+.filter-sheet {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border2);
+  border-radius: 16px 16px 0 0;
+  padding: 16px 20px 32px;
+  z-index: 70;
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+}
+.filter-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 3px; background: var(--surface3); border-radius: 99px; margin: 0 auto 20px; }
+.sheet-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+.sheet-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.sheet-chip {
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+  padding: 7px 14px; border-radius: var(--r);
+  border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--text2); cursor: pointer; transition: all 0.15s;
+}
+.sheet-chip:hover { background: var(--surface3); color: var(--text); }
+.sheet-chip.sc-active { background: rgba(108,92,231,0.12); border-color: rgba(108,92,231,0.3); color: var(--accent-light); }
+.sheet-chip.sc-easy.sc-active { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+.sheet-chip.sc-medium.sc-active { background: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow); }
+.sheet-chip.sc-hard.sc-active { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+.sheet-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px; }
+.sheet-select-full { width: 100%; margin-bottom: 14px; padding: 9px 12px; background: var(--surface2); }
+
+/* ── CSV MODAL ── */
+.csv-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.csv-modal {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 24px; width: 92%; max-width: 460px;
+}
+.csv-modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.csv-modal p { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
+.csv-modal pre {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 10px 12px; border-radius: var(--r);
+  font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text2);
+  overflow-x: auto; margin-bottom: 10px;
+}
+.csv-modal .note { font-size: 11px; color: var(--text3); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
 
-/* ── CSV MODAL ── */
-#csvModal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    transform: translateX(-100%);
+    z-index: 50;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .hamburger { display: flex; }
+  .topbar { padding: 0 14px; height: 48px; }
+  .breadcrumb { display: none; }
+  .search-box { max-width: none; }
+  .tbtn-label { display: none; }
+  .topbar-right .tbtn-accent { padding: 6px 10px; }
+  .content { padding: 14px; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-box { padding: 11px 12px; }
+  .stat-num { font-size: 22px; }
+  .stat-note { display: none; }
+  .s-solved { grid-column: span 1; }
+  .mobile-bottom-nav { display: flex; }
+  .content { padding-bottom: 80px; }
+  th:nth-child(3), td:nth-child(3) { display: none; }
+  th:nth-child(1) { width: 34px; }
+  th:nth-child(4) { width: 80px; }
+  th:nth-child(5) { width: 40px; }
+  td { padding: 10px 12px; }
+  th { padding: 9px 12px; }
+  .prob-num { display: none; }
+  .panel-header { gap: 6px; }
+  .filter-row { display: none; }
+  .mobile-filter-btn { display: flex !important; }
 }
+@media (max-width: 420px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .s-total { grid-column: span 2; }
+  .streak-section { display: none; }
+}
+.mobile-filter-btn { display: none; }
 </style>
 </head>
 <body>
-<div class="wrapper">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      <h1>DSA <span>Tracker</span></h1>
-      <div class="header-sub" id="headerSub">Upload CSV files to load your problem sets</div>
-    </div>
-    <div class="header-actions">
-      <label class="btn btn-accent" for="csvFiles">+ Upload CSV</label>
-      <input type="file" id="csvFiles" class="file-input" multiple accept=".csv">
-      <button class="btn btn-danger" onclick="clearData()">Reset</button>
+<div id="csvModal" class="csv-modal-overlay">
+  <div class="csv-modal">
+    <h2>Upload CSV format</h2>
+    <p>Your CSV must follow this structure:</p>
+    <pre>Difficulty,Title,Frequency,Link
+MEDIUM,Two Sum,95.0,https://leetcode.com/...
+EASY,Happy Number,99.0,https://leetcode.com/...</pre>
+    <p class="note">Company name is taken from the filename. Upload multiple files for different companies.</p>
+    <div style="text-align:right;margin-top:16px;">
+      <button class="tbtn tbtn-accent" onclick="closeModal()">Got it</button>
     </div>
   </div>
-
-  <!-- CSV FORMAT MODAL -->
-  <div id="csvModal">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:90%;max-width:500px;">
-      <h2 style="font-family:'Syne';margin-bottom:12px;">📄 Upload CSV Format</h2>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Your CSV should follow this format:</p>
-      <pre style="background:var(--surface2);padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;">Difficulty,Title,Frequency,Link
-MEDIUM,Two Sum,95.0,https://leetcode.com/problems/two-sum
-EASY,Happy Number,99.0,https://leetcode.com/problems/happy-number</pre>
-      <p style="font-size:11px;color:var(--muted);margin-top:10px;">⚠️ Make sure the link column contains valid LeetCode URLs.</p>
-      <div style="text-align:right;margin-top:16px;">
-        <button class="btn btn-accent" onclick="closeModal()">Got it</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STATS -->
-  <div class="stats-grid">
-    <div class="stat-card c-purple">
-      <div class="stat-label">Total</div>
-      <div class="stat-val" id="sTotal">0</div>
-      <div class="stat-sub">problems loaded</div>
-    </div>
-    <div class="stat-card c-green">
-      <div class="stat-label">Solved</div>
-      <div class="stat-val" id="sSolved">0</div>
-      <div class="stat-sub" id="sSolvedPct">0% done</div>
-    </div>
-    <div class="stat-card c-green-d">
-      <div class="stat-label">Easy</div>
-      <div class="stat-val" id="sEasy">0</div>
-      <div class="stat-sub" id="sEasySub">0 solved</div>
-    </div>
-    <div class="stat-card c-yellow">
-      <div class="stat-label">Medium</div>
-      <div class="stat-val" id="sMed">0</div>
-      <div class="stat-sub" id="sMedSub">0 solved</div>
-    </div>
-    <div class="stat-card c-red">
-      <div class="stat-label">Hard</div>
-      <div class="stat-val" id="sHard">0</div>
-      <div class="stat-sub" id="sHardSub">0 solved</div>
-    </div>
-  </div>
-
-  <!-- PROGRESS CARD -->
-  <div class="progress-card">
-    <div class="progress-top">
-      <div>
-        <div class="progress-title">Overall Progress</div>
-        <div class="progress-meta" id="progLabel">0 of 0 problems solved</div>
-      </div>
-      <div class="progress-pct" id="progPct">0%</div>
-    </div>
-    <div class="track">
-      <div class="fill" id="progBar" style="width:0%"></div>
-    </div>
-    <div class="diff-bars">
-      <div class="diff-bar-item">
-        <div class="diff-bar-label"><span>Easy</span><span id="dbEasyLbl">0/0</span></div>
-        <div class="diff-track"><div class="diff-fill df-e" id="dbEasy" style="width:0%"></div></div>
-      </div>
-      <div class="diff-bar-item">
-        <div class="diff-bar-label"><span>Medium</span><span id="dbMedLbl">0/0</span></div>
-        <div class="diff-track"><div class="diff-fill df-m" id="dbMed" style="width:0%"></div></div>
-      </div>
-      <div class="diff-bar-item">
-        <div class="diff-bar-label"><span>Hard</span><span id="dbHardLbl">0/0</span></div>
-        <div class="diff-track"><div class="diff-fill df-h" id="dbHard" style="width:0%"></div></div>
-      </div>
-    </div>
-    <div class="streak-row" id="streakRow"></div>
-  </div>
-
-  <!-- CONTROLS -->
-  <div class="controls-row">
-    <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" id="search" placeholder="Search problems..." oninput="applyFilters()">
-    </div>
-    <select id="companyFilter" onchange="applyFilters()">
-      <option value="">All companies</option>
-    </select>
-  </div>
-  <div class="chips">
-    <div class="chip active" id="chip-all" onclick="setDiff('')">All</div>
-    <div class="chip chip-easy" id="chip-easy" onclick="setDiff('EASY')">Easy</div>
-    <div class="chip chip-medium" id="chip-medium" onclick="setDiff('MEDIUM')">Medium</div>
-    <div class="chip chip-hard" id="chip-hard" onclick="setDiff('HARD')">Hard</div>
-    <div class="chip chip-solved" id="chip-solved" onclick="setDiff('solved')">Solved</div>
-    <div class="chip" id="chip-unsolved" onclick="setDiff('unsolved')">Unsolved</div>
-  </div>
-
-  <!-- TABLE -->
-  <div class="table-card">
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Problem</th>
-            <th>Company</th>
-            <th>Difficulty</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-    <div class="pagination">
-      <span class="page-info" id="pageInfo">—</span>
-      <div class="page-btns" id="pageBtns"></div>
-    </div>
-  </div>
-
 </div>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeSidebar()"></div>
+
+<div class="filter-sheet" id="filterSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Filter problems</div>
+  <div class="sheet-section-label">Status</div>
+  <div class="sheet-row" id="statusChips">
+    <div class="sheet-chip sc-active" data-diff="" onclick="sheetSetDiff('')">All</div>
+    <div class="sheet-chip" data-diff="solved" onclick="sheetSetDiff('solved')">Solved</div>
+    <div class="sheet-chip" data-diff="unsolved" onclick="sheetSetDiff('unsolved')">Unsolved</div>
+  </div>
+  <div class="sheet-section-label" style="margin-top:12px">Difficulty</div>
+  <div class="sheet-row" id="diffChips">
+    <div class="sheet-chip sc-easy" data-diff="EASY" onclick="sheetSetDiff('EASY')">Easy</div>
+    <div class="sheet-chip sc-medium" data-diff="MEDIUM" onclick="sheetSetDiff('MEDIUM')">Medium</div>
+    <div class="sheet-chip sc-hard" data-diff="HARD" onclick="sheetSetDiff('HARD')">Hard</div>
+  </div>
+  <div class="sheet-section-label" style="margin-top:12px">Company</div>
+  <select id="companyFilterSheet" class="sheet-select-full" onchange="syncCompanyFilter('sheet')">
+    <option value="">All companies</option>
+  </select>
+  <div class="sheet-section-label">Sort by</div>
+  <select id="sortSelectSheet" class="sheet-select-full" onchange="syncSort('sheet')">
+    <option value="">Default order</option>
+    <option value="title">Title A–Z</option>
+    <option value="diff-asc">Difficulty ↑</option>
+    <option value="diff-desc">Difficulty ↓</option>
+  </select>
+  <button class="tbtn tbtn-accent" style="width:100%;padding:10px;justify-content:center;font-size:13px" onclick="closeFilterSheet()">Apply filters</button>
+</div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-text">DSA <span>Sheet</span></div>
+      <div class="logo-sub mono" id="sidebarSub">No data loaded</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">View</div>
+      <div class="nav-item active" id="navAll" onclick="setDiff('');closeSidebar()">
+        <span><span class="nav-icon">▦</span> All problems</span>
+        <span class="nav-badge" id="navAllCount">0</span>
+      </div>
+      <div class="nav-item" id="navSolved" onclick="setDiff('solved');closeSidebar()">
+        <span><span class="nav-icon">✓</span> Solved</span>
+        <span class="nav-badge" id="navSolvedCount">0</span>
+      </div>
+      <div class="nav-item" id="navUnsolved" onclick="setDiff('unsolved');closeSidebar()">
+        <span><span class="nav-icon">○</span> Unsolved</span>
+        <span class="nav-badge" id="navUnsolvedCount">0</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Difficulty</div>
+      <div class="diff-nav-item" id="navEasy" onclick="setDiff('EASY');closeSidebar()">
+        <div style="display:flex;align-items:center"><div class="diff-dot easy"></div><span>Easy</span></div>
+        <span class="nav-badge" id="navEasyCount" style="color:var(--green)">0</span>
+      </div>
+      <div class="diff-nav-item" id="navMedium" onclick="setDiff('MEDIUM');closeSidebar()">
+        <div style="display:flex;align-items:center"><div class="diff-dot medium"></div><span>Medium</span></div>
+        <span class="nav-badge" id="navMediumCount" style="color:var(--yellow)">0</span>
+      </div>
+      <div class="diff-nav-item" id="navHard" onclick="setDiff('HARD');closeSidebar()">
+        <div style="display:flex;align-items:center"><div class="diff-dot hard"></div><span>Hard</span></div>
+        <span class="nav-badge" id="navHardCount" style="color:var(--red)">0</span>
+      </div>
+    </div>
+    <div class="sidebar-stats">
+      <div class="mini-progress">
+        <div class="mini-progress-top">
+          <span class="mini-progress-label">Overall progress</span>
+          <span class="mini-progress-pct" id="miniPct">0%</span>
+        </div>
+        <div class="mini-track"><div class="mini-fill" id="miniFill" style="width:0%"></div></div>
+        <div class="mini-counts">
+          <div class="mini-count"><div class="mini-count-val mc-e" id="mcE">0</div><div class="mini-count-label">easy</div></div>
+          <div class="mini-count"><div class="mini-count-val mc-m" id="mcM">0</div><div class="mini-count-label">med</div></div>
+          <div class="mini-count"><div class="mini-count-val mc-h" id="mcH">0</div><div class="mini-count-label">hard</div></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="breadcrumb"><span id="breadcrumbLabel">All problems</span></div>
+        <div class="search-box">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="search" placeholder="Search…" oninput="applyFilters()">
+        </div>
+      </div>
+      <div class="topbar-right">
+        <select id="companyFilter" onchange="syncCompanyFilter('top')" style="display:none" class="desktop-only-select">
+          <option value="">All companies</option>
+        </select>
+        <select id="sortSelect" onchange="syncSort('top')" style="display:none" class="desktop-only-select">
+          <option value="">Default order</option>
+          <option value="title">Title A–Z</option>
+          <option value="diff-asc">Difficulty ↑</option>
+          <option value="diff-desc">Difficulty ↓</option>
+        </select>
+        <label class="tbtn tbtn-accent tbtn-icon" for="csvFiles" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px">
+          <span>+</span><span class="tbtn-label"> Upload CSV</span>
+        </label>
+        <input type="file" id="csvFiles" class="file-input" multiple accept=".csv">
+        <button class="tbtn tbtn-icon" onclick="clearData()" title="Reset">↺</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-box s-total">
+          <div class="stat-label2">Total</div>
+          <div class="stat-num" id="sTotal">0</div>
+          <div class="stat-note" id="sTotalNote">problems</div>
+        </div>
+        <div class="stat-box s-solved">
+          <div class="stat-label2">Solved</div>
+          <div class="stat-num" id="sSolved">0</div>
+          <div class="stat-note" id="sSolvedNote">0% done</div>
+        </div>
+        <div class="stat-box s-easy">
+          <div class="stat-label2">Easy</div>
+          <div class="stat-num" id="sEasy">0</div>
+          <div class="stat-note" id="sEasyNote">0 solved</div>
+        </div>
+        <div class="stat-box s-med">
+          <div class="stat-label2">Medium</div>
+          <div class="stat-num" id="sMed">0</div>
+          <div class="stat-note" id="sMedNote">0 solved</div>
+        </div>
+        <div class="stat-box s-hard">
+          <div class="stat-label2">Hard</div>
+          <div class="stat-num" id="sHard">0</div>
+          <div class="stat-note" id="sHardNote">0 solved</div>
+        </div>
+      </div>
+
+      <div class="streak-section">
+        <div class="streak-header">This week</div>
+        <div class="streak-grid" id="streakGrid"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <strong id="panelTitle">Problems</strong>
+            <span id="panelCount" style="color:var(--text3)">0 results</span>
+          </div>
+          <div class="filter-row">
+            <select id="companyFilterDesktop" onchange="syncCompanyFilter('desktop')">
+              <option value="">All companies</option>
+            </select>
+            <select id="sortSelectDesktop" onchange="syncSort('desktop')">
+              <option value="">Default order</option>
+              <option value="title">Title A–Z</option>
+              <option value="diff-asc">Difficulty ↑</option>
+              <option value="diff-desc">Difficulty ↓</option>
+            </select>
+          </div>
+          <button class="tbtn mobile-filter-btn" onclick="openFilterSheet()" style="align-items:center;gap:6px;font-size:12px">
+            ⊞ Filter
+          </button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Problem</th>
+                <th>Company</th>
+                <th>Difficulty</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span class="page-info" id="pageInfo">—</span>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="mobile-bottom-nav">
+  <div class="mbn-item active" id="mbnAll" onclick="mbnSetDiff('')">
+    <div class="mbn-icon">▦</div>
+    <div class="mbn-label">All</div>
+  </div>
+  <div class="mbn-item" id="mbnEasy" onclick="mbnSetDiff('EASY')">
+    <div class="mbn-icon" style="color:var(--green)">●</div>
+    <div class="mbn-label">Easy</div>
+  </div>
+  <div class="mbn-item" id="mbnMedium" onclick="mbnSetDiff('MEDIUM')">
+    <div class="mbn-icon" style="color:var(--yellow)">●</div>
+    <div class="mbn-label">Medium</div>
+  </div>
+  <div class="mbn-item" id="mbnHard" onclick="mbnSetDiff('HARD')">
+    <div class="mbn-icon" style="color:var(--red)">●</div>
+    <div class="mbn-label">Hard</div>
+  </div>
+  <div class="mbn-item" id="mbnSolved" onclick="mbnSetDiff('solved')">
+    <div class="mbn-icon">✓</div>
+    <div class="mbn-label">Solved</div>
+  </div>
+</nav>
 
 <script>
 let data = [];
@@ -628,49 +679,84 @@ let filteredData = [];
 let progress = JSON.parse(localStorage.getItem('dsa_progress') || '{}');
 let activeDiff = '';
 let currentPage = 1;
-const PAGE = 25;
+let companyValue = '';
+let sortValue = '';
+const PAGE = 30;
+const DIFF_ORDER = {EASY:0,MEDIUM:1,HARD:2};
 
-const isMobile = () => window.innerWidth <= 600;
+function companyInitials(name) {
+  return name.split(/[\s_-]/g).map(w=>w[0]||'').join('').toUpperCase().slice(0,2) || name.slice(0,2).toUpperCase();
+}
 
-window.onload = function () {
-  const seen = localStorage.getItem("csv_help_seen");
-  if (!seen) {
-    document.getElementById("csvModal").style.display = "flex";
+window.onload = function() {
+  if (!localStorage.getItem('csv_help_seen')) {
+    document.getElementById('csvModal').style.display = 'flex';
   }
   const saved = localStorage.getItem('dsa_data');
-  if (saved) {
-    data = JSON.parse(saved);
-    updateCompanyFilter();
-  }
+  if (saved) { data = JSON.parse(saved); updateCompanyFilter(); }
   applyFilters();
   renderStreak();
 };
 
 function closeModal() {
-  document.getElementById("csvModal").style.display = "none";
-  localStorage.setItem("csv_help_seen", "true");
+  document.getElementById('csvModal').style.display = 'none';
+  localStorage.setItem('csv_help_seen','1');
+}
+
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('drawerOverlay');
+  const h = document.getElementById('hamburger');
+  const open = s.classList.toggle('open');
+  h.classList.toggle('open', open);
+  o.style.display = open ? 'block' : 'none';
+  setTimeout(()=>{ if(open) o.classList.add('open'); else o.classList.remove('open'); }, 10);
+}
+function closeSidebar() {
+  const s = document.getElementById('sidebar');
+  if (!s.classList.contains('open')) return;
+  s.classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  const o = document.getElementById('drawerOverlay');
+  o.classList.remove('open');
+  setTimeout(()=>{ o.style.display='none'; },250);
+}
+
+function openFilterSheet() {
+  const fs = document.getElementById('filterSheet');
+  const o = document.getElementById('drawerOverlay');
+  fs.style.display = 'block';
+  o.style.display = 'block';
+  setTimeout(()=>{ fs.classList.add('open'); o.classList.add('open'); }, 10);
+  o.onclick = closeFilterSheet;
+}
+function closeFilterSheet() {
+  const fs = document.getElementById('filterSheet');
+  const o = document.getElementById('drawerOverlay');
+  fs.classList.remove('open');
+  o.classList.remove('open');
+  setTimeout(()=>{ fs.style.display='none'; o.style.display='none'; o.onclick=closeSidebar; },250);
 }
 
 function parseCSV(text, company) {
-  const rows = text.split('\n').slice(1);
-  return rows.map(row => {
+  return text.split('\n').slice(1).map(row => {
     if (!row.trim()) return null;
     const cols = row.split(',');
-    const difficulty = (cols[0] || '').trim().toUpperCase();
-    const title = (cols[1] || '').trim();
-    const link = cols.find(col => col.includes('leetcode.com')) || '';
-    return { title, difficulty, link, company, id: title + '_' + company };
-  }).filter(item => item && item.title);
+    const difficulty = (cols[0]||'').trim().toUpperCase();
+    const title = (cols[1]||'').trim();
+    const link = cols.find(c=>c.includes('leetcode.com'))||'';
+    if (!title) return null;
+    return { title, difficulty, link: link.trim(), company, id: title+'_'+company };
+  }).filter(Boolean);
 }
 
-document.getElementById('csvFiles').addEventListener('change', function (e) {
+document.getElementById('csvFiles').addEventListener('change', function(e) {
   Array.from(e.target.files).forEach(file => {
     const reader = new FileReader();
-    reader.onload = function (evt) {
-      const parsed = parseCSV(evt.target.result, file.name.replace('.csv', ''));
-      const existingIds = new Set(data.map(d => d.id));
-      const newItems = parsed.filter(i => !existingIds.has(i.id));
-      data.push(...newItems);
+    reader.onload = evt => {
+      const parsed = parseCSV(evt.target.result, file.name.replace('.csv',''));
+      const ids = new Set(data.map(d=>d.id));
+      data.push(...parsed.filter(i=>!ids.has(i.id)));
       localStorage.setItem('dsa_data', JSON.stringify(data));
       updateCompanyFilter();
       applyFilters();
@@ -680,27 +766,72 @@ document.getElementById('csvFiles').addEventListener('change', function (e) {
   e.target.value = '';
 });
 
+function syncCompanyFilter(source) {
+  if (source==='desktop') companyValue = document.getElementById('companyFilterDesktop').value;
+  else if (source==='sheet') companyValue = document.getElementById('companyFilterSheet').value;
+  ['companyFilterDesktop','companyFilterSheet'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = companyValue;
+  });
+  currentPage=1; applyFilters();
+}
+function syncSort(source) {
+  if (source==='desktop') sortValue = document.getElementById('sortSelectDesktop').value;
+  else if (source==='sheet') sortValue = document.getElementById('sortSelectSheet').value;
+  ['sortSelectDesktop','sortSelectSheet'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = sortValue;
+  });
+  currentPage=1; applyFilters();
+}
+
 function setDiff(d) {
   activeDiff = d;
   currentPage = 1;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  const map = { '': 'all', 'EASY': 'easy', 'MEDIUM': 'medium', 'HARD': 'hard', 'solved': 'solved', 'unsolved': 'unsolved' };
-  const el = document.getElementById('chip-' + (map[d] || 'all'));
-  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item, .diff-nav-item').forEach(el => el.classList.remove('active','active-easy','active-medium','active-hard'));
+  const map = {'':'navAll','solved':'navSolved','unsolved':'navUnsolved','EASY':'navEasy','MEDIUM':'navMedium','HARD':'navHard'};
+  const el = document.getElementById(map[d]||'navAll');
+  if (el) {
+    if(d==='EASY') el.classList.add('active-easy');
+    else if(d==='MEDIUM') el.classList.add('active-medium');
+    else if(d==='HARD') el.classList.add('active-hard');
+    else el.classList.add('active');
+  }
+  syncMobileNav(d);
+  const labels = {'':'All problems','solved':'Solved','unsolved':'Unsolved','EASY':'Easy','MEDIUM':'Medium','HARD':'Hard'};
+  document.getElementById('breadcrumbLabel').textContent = labels[d]||'All';
+  document.getElementById('panelTitle').textContent = labels[d]||'Problems';
   applyFilters();
+}
+
+function mbnSetDiff(d) { setDiff(d); }
+function sheetSetDiff(d) {
+  setDiff(d);
+  document.querySelectorAll('#statusChips .sheet-chip, #diffChips .sheet-chip').forEach(el => el.classList.remove('sc-active'));
+  const all = document.querySelectorAll('.sheet-chip[data-diff]');
+  all.forEach(el => { if(el.dataset.diff===d) el.classList.add('sc-active'); });
+}
+
+function syncMobileNav(d) {
+  document.querySelectorAll('.mbn-item').forEach(el=>el.classList.remove('active'));
+  const map = {'':'mbnAll','EASY':'mbnEasy','MEDIUM':'mbnMedium','HARD':'mbnHard','solved':'mbnSolved'};
+  const el = document.getElementById(map[d]);
+  if(el) el.classList.add('active');
 }
 
 function applyFilters() {
   const search = document.getElementById('search').value.toLowerCase();
-  const company = document.getElementById('companyFilter').value;
   filteredData = data.filter(item => {
     if (search && !item.title.toLowerCase().includes(search)) return false;
-    if (company && item.company !== company) return false;
-    if (activeDiff === 'solved') return !!progress[item.id];
-    if (activeDiff === 'unsolved') return !progress[item.id];
+    if (companyValue && item.company !== companyValue) return false;
+    if (activeDiff==='solved') return !!progress[item.id];
+    if (activeDiff==='unsolved') return !progress[item.id];
     if (activeDiff && item.difficulty !== activeDiff) return false;
     return true;
   });
+  if (sortValue==='title') filteredData.sort((a,b)=>a.title.localeCompare(b.title));
+  else if (sortValue==='diff-asc') filteredData.sort((a,b)=>(DIFF_ORDER[a.difficulty]||0)-(DIFF_ORDER[b.difficulty]||0));
+  else if (sortValue==='diff-desc') filteredData.sort((a,b)=>(DIFF_ORDER[b.difficulty]||0)-(DIFF_ORDER[a.difficulty]||0));
   currentPage = 1;
   renderTable();
   updateStats();
@@ -709,176 +840,139 @@ function applyFilters() {
 function renderTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
-
-  if (filteredData.length === 0) {
-    tbody.innerHTML = `
-      <tr><td colspan="5">
-        <div class="empty">
-          <span class="empty-icon">🗂</span>
-          <h3>${data.length === 0 ? 'No problems loaded' : 'No matches'}</h3>
-          <p>${data.length === 0 ? 'Upload a CSV to start' : 'Try different filters'}</p>
-        </div>
-      </td></tr>`;
+  document.getElementById('panelCount').textContent = filteredData.length + ' result' + (filteredData.length!==1?'s':'');
+  if (!filteredData.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty">
+      <div class="empty-icon">⊘</div>
+      <h3>${data.length===0?'No problems loaded':'No matches'}</h3>
+      <p>${data.length===0?'Upload a CSV file to get started':'Try adjusting your filters'}</p>
+    </div></td></tr>`;
     document.getElementById('pageInfo').textContent = '—';
     document.getElementById('pageBtns').innerHTML = '';
     return;
   }
-
-  const start = (currentPage - 1) * PAGE;
-  const slice = filteredData.slice(start, start + PAGE);
-  const mobile = isMobile();
-
-  slice.forEach(item => {
+  const start = (currentPage-1)*PAGE;
+  const slice = filteredData.slice(start, start+PAGE);
+  slice.forEach((item, idx) => {
     const solved = !!progress[item.id];
-    const badgeCls = item.difficulty === 'EASY' ? 'b-easy' : item.difficulty === 'MEDIUM' ? 'b-medium' : 'b-hard';
+    const badgeCls = item.difficulty==='EASY'?'b-easy':item.difficulty==='MEDIUM'?'b-medium':'b-hard';
+    const initials = companyInitials(item.company);
+    const globalIdx = start+idx+1;
     const tr = document.createElement('tr');
     if (solved) tr.classList.add('solved');
-
-    // On mobile: embed company as subtitle inside the title cell
-    const titleCell = mobile
-      ? `<td class="td-title">
-           <span class="title-main" title="${item.title}">${item.title}</span>
-           <span class="title-company">${item.company}</span>
-         </td>`
-      : `<td title="${item.title}">${item.title}</td>`;
-
     tr.innerHTML = `
-      <td style="text-align:center">
-        <input type="checkbox" ${solved ? 'checked' : ''} onchange="toggleSolved('${item.id}')">
+      <td style="text-align:center"><input type="checkbox" ${solved?'checked':''} onchange="toggleSolved('${item.id}')"></td>
+      <td>
+        <div class="prob-cell">
+          <span class="prob-num">${String(globalIdx).padStart(3,'0')}</span>
+          <div style="min-width:0"><div class="prob-title">${item.title}</div></div>
+        </div>
       </td>
-      ${titleCell}
-      <td style="color:var(--muted);font-size:12px">${item.company}</td>
+      <td>
+        <div class="company-cell">
+          <div class="company-logo">${initials}</div>
+          <span class="company-name">${item.company}</span>
+        </div>
+      </td>
       <td><span class="badge ${badgeCls}">${item.difficulty}</span></td>
-      <td style="text-align:center">
-        ${item.link
-          ? `<a class="solve-link" href="${item.link}" target="_blank" title="Open problem">↗</a>`
-          : '<span style="color:var(--dim)">—</span>'}
-      </td>
+      <td style="text-align:center">${item.link?`<a class="link-btn" href="${item.link}" target="_blank">↗</a>`:'<span style="color:var(--text3)">—</span>'}</td>
     `;
     tbody.appendChild(tr);
   });
-
   renderPagination();
 }
 
 function renderPagination() {
   const total = filteredData.length;
-  const totalPages = Math.ceil(total / PAGE);
-  const start = (currentPage - 1) * PAGE;
-  document.getElementById('pageInfo').textContent =
-    `${start + 1}–${Math.min(start + PAGE, total)} of ${total}`;
-
+  const totalPages = Math.ceil(total/PAGE);
+  const start = (currentPage-1)*PAGE;
+  document.getElementById('pageInfo').textContent = `${start+1}–${Math.min(start+PAGE,total)} of ${total}`;
   const container = document.getElementById('pageBtns');
   container.innerHTML = '';
-
   const prev = document.createElement('button');
-  prev.className = 'pbtn';
-  prev.textContent = '←';
-  prev.disabled = currentPage === 1;
-  prev.onclick = () => { currentPage--; renderTable(); };
+  prev.className='pbtn'; prev.textContent='←'; prev.disabled=currentPage===1;
+  prev.onclick=()=>{ currentPage--; renderTable(); };
   container.appendChild(prev);
-
-  for (let i = 1; i <= totalPages; i++) {
-    if (i > 5 && i !== totalPages) continue;
-    const b = document.createElement('button');
-    b.className = 'pbtn' + (i === currentPage ? ' cur' : '');
-    b.textContent = i;
-    b.onclick = () => { currentPage = i; renderTable(); };
+  for(let i=1;i<=totalPages;i++){
+    if(i>1&&i<totalPages&&Math.abs(i-currentPage)>1) continue;
+    const b=document.createElement('button');
+    b.className='pbtn'+(i===currentPage?' cur':'');
+    b.textContent=i;
+    b.onclick=(pg=>()=>{ currentPage=pg; renderTable(); })(i);
     container.appendChild(b);
   }
-
-  const next = document.createElement('button');
-  next.className = 'pbtn';
-  next.textContent = '→';
-  next.disabled = currentPage === totalPages;
-  next.onclick = () => { currentPage++; renderTable(); };
+  const next=document.createElement('button');
+  next.className='pbtn'; next.textContent='→'; next.disabled=currentPage===totalPages||!totalPages;
+  next.onclick=()=>{ currentPage++; renderTable(); };
   container.appendChild(next);
 }
 
 function toggleSolved(id) {
   progress[id] = !progress[id];
   localStorage.setItem('dsa_progress', JSON.stringify(progress));
-  updateStats();
-  renderTable();
+  updateStats(); renderTable();
 }
 
 function updateStats() {
   const total = data.length;
-  const solved = data.filter(i => progress[i.id]).length;
-  const pct = total ? Math.round((solved / total) * 100) : 0;
-
-  const easy = data.filter(i => i.difficulty === 'EASY');
-  const med  = data.filter(i => i.difficulty === 'MEDIUM');
-  const hard = data.filter(i => i.difficulty === 'HARD');
-  const es = easy.filter(i => progress[i.id]).length;
-  const ms = med.filter(i => progress[i.id]).length;
-  const hs = hard.filter(i => progress[i.id]).length;
-
-  document.getElementById('sTotal').textContent = total;
-  document.getElementById('sSolved').textContent = solved;
-  document.getElementById('sSolvedPct').textContent = pct + '% done';
-  document.getElementById('sEasy').textContent = easy.length;
-  document.getElementById('sEasySub').textContent = es + ' solved';
-  document.getElementById('sMed').textContent = med.length;
-  document.getElementById('sMedSub').textContent = ms + ' solved';
-  document.getElementById('sHard').textContent = hard.length;
-  document.getElementById('sHardSub').textContent = hs + ' solved';
-
-  document.getElementById('progLabel').textContent = solved + ' of ' + total + ' problems solved';
-  document.getElementById('progPct').textContent = pct + '%';
-  document.getElementById('progBar').style.width = pct + '%';
-
-  document.getElementById('dbEasy').style.width = (easy.length ? (es / easy.length) * 100 : 0) + '%';
-  document.getElementById('dbEasyLbl').textContent = es + '/' + easy.length;
-  document.getElementById('dbMed').style.width = (med.length ? (ms / med.length) * 100 : 0) + '%';
-  document.getElementById('dbMedLbl').textContent = ms + '/' + med.length;
-  document.getElementById('dbHard').style.width = (hard.length ? (hs / hard.length) * 100 : 0) + '%';
-  document.getElementById('dbHardLbl').textContent = hs + '/' + hard.length;
-
-  if (total > 0) {
-    document.getElementById('headerSub').textContent =
-      `${total} problems across ${[...new Set(data.map(d => d.company))].length} companies`;
-  }
+  const solved = data.filter(i=>progress[i.id]).length;
+  const pct = total?Math.round(solved/total*100):0;
+  const easy=data.filter(i=>i.difficulty==='EASY');
+  const med=data.filter(i=>i.difficulty==='MEDIUM');
+  const hard=data.filter(i=>i.difficulty==='HARD');
+  const es=easy.filter(i=>progress[i.id]).length;
+  const ms=med.filter(i=>progress[i.id]).length;
+  const hs=hard.filter(i=>progress[i.id]).length;
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sTotalNote').textContent=[...new Set(data.map(d=>d.company))].length+' companies';
+  document.getElementById('sSolved').textContent=solved;
+  document.getElementById('sSolvedNote').textContent=pct+'% done';
+  document.getElementById('sEasy').textContent=easy.length;
+  document.getElementById('sEasyNote').textContent=es+' solved';
+  document.getElementById('sMed').textContent=med.length;
+  document.getElementById('sMedNote').textContent=ms+' solved';
+  document.getElementById('sHard').textContent=hard.length;
+  document.getElementById('sHardNote').textContent=hs+' solved';
+  document.getElementById('miniPct').textContent=pct+'%';
+  document.getElementById('miniFill').style.width=pct+'%';
+  document.getElementById('mcE').textContent=es;
+  document.getElementById('mcM').textContent=ms;
+  document.getElementById('mcH').textContent=hs;
+  document.getElementById('navAllCount').textContent=total;
+  document.getElementById('navSolvedCount').textContent=solved;
+  document.getElementById('navUnsolvedCount').textContent=total-solved;
+  document.getElementById('navEasyCount').textContent=easy.length;
+  document.getElementById('navMediumCount').textContent=med.length;
+  document.getElementById('navHardCount').textContent=hard.length;
+  if(total>0) document.getElementById('sidebarSub').textContent=total+' problems loaded';
 }
 
 function renderStreak() {
-  const row = document.getElementById('streakRow');
-  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const today = new Date().getDay();
-  const todayIdx = today === 0 ? 6 : today - 1;
-  row.innerHTML = '<span class="streak-label">This week</span>' +
-    days.map((d, i) => {
-      let cls = 's-miss';
-      if (i === todayIdx) cls = 's-today';
-      else if (i < todayIdx) cls = 's-done';
-      return `<div class="streak-dot ${cls}">${d[0]}</div>`;
-    }).join('');
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=new Date().getDay();
+  const todayIdx=today===0?6:today-1;
+  document.getElementById('streakGrid').innerHTML=days.map((d,i)=>{
+    let cls='';
+    if(i===todayIdx) cls='today';
+    else if(i<todayIdx) cls='done';
+    return `<div class="sday ${cls}"><div class="sday-name">${d}</div><div class="sday-dot"></div></div>`;
+  }).join('');
 }
 
 function updateCompanyFilter() {
-  const companies = [...new Set(data.map(d => d.company))].sort();
-  const sel = document.getElementById('companyFilter');
-  sel.innerHTML = '<option value="">All companies</option>';
-  companies.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c; opt.textContent = c;
-    sel.appendChild(opt);
+  const companies=[...new Set(data.map(d=>d.company))].sort();
+  ['companyFilterDesktop','companyFilterSheet'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML='<option value="">All companies</option>';
+    companies.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+    sel.value=companyValue;
   });
 }
 
 function clearData() {
-  if (confirm('Delete all data and progress?')) {
-    localStorage.clear();
-    location.reload();
-  }
+  if(confirm('Delete all loaded data and progress?')){ localStorage.clear(); location.reload(); }
 }
-
-// Re-render table on resize so mobile/desktop cell logic updates
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(renderTable, 150);
-});
 </script>
 </body>
 </html>
